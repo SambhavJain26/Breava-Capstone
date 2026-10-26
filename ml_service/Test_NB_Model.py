@@ -1,39 +1,52 @@
-# ml_service/Test_NB_Model.py
-
+import os
 import sys
+from typing import List
 import pandas as pd
 import joblib
 
-# 1) load once at import
-MODEL_PATH  = 'breast_cancer_nb_model.pkl'
-SCALER_PATH = 'scaler.pkl'
-model  = joblib.load(MODEL_PATH)
+# Resolve paths relative to script location
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, 'breast_cancer_nb_model.pkl')
+SCALER_PATH = os.path.join(BASE_DIR, 'scaler.pkl')
+
+model = joblib.load(MODEL_PATH)
 scaler = joblib.load(SCALER_PATH)
 
-def predict_from_csv(path_to_csv):
+EXPECTED_FEATURE_COUNT = 30
+
+
+def predict_from_csv(path_to_csv: str) -> List[str]:
     """
     Reads CSV at path_to_csv, drops id/diagnosis columns,
-    scales features, returns ['benign','malignant',...]
+    scales features using fitted StandardScaler, and returns ['benign', 'malignant', ...]
     """
     df = pd.read_csv(path_to_csv)
-    
-    # drop unused columns if present
-    df = df.drop(columns=['id','diagnosis'], errors='ignore')
-    
-    # enforce exactly 30 features
-    if df.shape[1] != 30:
-        raise ValueError(f"CSV needs 30 features, found {df.shape[1]}")
-    
-    # scale & predict
-    X_scaled = scaler.transform(df.values)
-    preds    = model.predict(X_scaled)
-    
-    # map to strings
+
+    # Drop non-feature metadata columns if present
+    df = df.drop(columns=['id', 'diagnosis', 'Unnamed: 32'], errors='ignore')
+
+    # Enforce exactly 30 features
+    if df.shape[1] != EXPECTED_FEATURE_COUNT:
+        raise ValueError(
+            f"CSV file must have exactly {EXPECTED_FEATURE_COUNT} diagnostic features, found {df.shape[1]}."
+        )
+
+    # Reorder columns to match scaler if feature names match
+    if hasattr(scaler, "feature_names_in_"):
+        expected_cols = list(scaler.feature_names_in_)
+        if all(c in df.columns for c in expected_cols):
+            df = df[expected_cols]
+
+    # Scale and predict
+    X_scaled = scaler.transform(df)
+    preds = model.predict(X_scaled)
+
+    # Map target integers to clinical classifications
     label_map = {0: 'benign', 1: 'malignant'}
     return [label_map[int(p)] for p in preds]
 
+
 if __name__ == "__main__":
-    # allow: python Test_NB_Model.py path/to/file.csv
     if len(sys.argv) != 2:
         print("Usage: python Test_NB_Model.py path/to/file.csv")
         sys.exit(1)

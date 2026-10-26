@@ -1,23 +1,22 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ShrutiiSharma04/-Capstone-1-Breava.git"
+    "url": "git+https://github.com/SambhavJain26/Breava-Capstone.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Sambhav Jain",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ShrutiiSharma04/-Capstone-1-Breava/issues"
+    "url": "https://github.com/SambhavJain26/Breava-Capstone/issues"
   },
-  "homepage": "https://github.com/ShrutiiSharma04/-Capstone-1-Breava#readme",
-  "description": "",
+  "homepage": "https://github.com/SambhavJain26/Breava-Capstone#readme",
+  "description": "Breava Breast Cancer Diagnostics Backend API",
   "dependencies": {
     "autoprefixer": "^10.4.21",
     "axios": "^1.9.0",

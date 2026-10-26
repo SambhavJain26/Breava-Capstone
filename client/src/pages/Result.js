@@ -1,63 +1,92 @@
 import React from 'react';
- import { useNavigate, useLocation } from 'react-router-dom';
- import {
-   Container,
-   Card,
-   CardContent,
-   Typography,
-   Button,
-   Box
- } from '@mui/material';
- 
- export default function Result() {
-   const navigate = useNavigate();
-   const location = useLocation();
-   const { result = 'unknown' } = location.state || {};
- 
-   return (
-     <Container maxWidth="sm" sx={{ py: 6 }}>
-       <Card elevation={3}>
-         <CardContent sx={{ textAlign: 'center' }}>
-           <Typography variant="h4" gutterBottom color="primary">
-             Diagnosis Result
-           </Typography>
- 
-           <Typography variant="body1" sx={{ my: 3 }}>
-             The sample is diagnosed as:
-           </Typography>
-           {Array.isArray(result) ? (
-             result.map((r, idx) => (
-               <Typography
-                 key={idx}
-                 variant="h5"
-                 component="div"
-                 sx={{ fontWeight: 700, mb: 2, color: 'primary.main' }}
-               >
-                 {r.toUpperCase()}
-               </Typography>
-             ))
-           ) : (
-             <Typography
-               variant="h5"
-               component="div"
-               sx={{ fontWeight: 700, mb: 4, color: 'primary.main' }}
-             >
-               {result.toUpperCase()}
-             </Typography>
-           )}
+import { useNavigate, useLocation } from 'react-router-dom';
+import {
+  Container,
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  Box,
+  Chip,
+  Stack,
+  Divider
+} from '@mui/material';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
-          <Box>
-             <Button
-               variant="contained"
-               color="primary"
-               size="large"
-               onClick={() => navigate('/')}
-             >
-               Back to Home
-             </Button>
-           </Box>
-         </CardContent>
-       </Card>
-     </Container>
-   );
-  }
+export default function Result() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { result = [] } = location.state || {};
+  const resultsList = Array.isArray(result) ? result : [result];
+
+  return (
+    <Container maxWidth="sm" sx={{ py: 6 }}>
+      <Card elevation={3} sx={{ borderRadius: 3, overflow: 'hidden' }}>
+        <Box sx={{ bgcolor: 'primary.main', color: 'white', py: 2.5, px: 3, textAlign: 'center' }}>
+          <Typography variant="h5" fontWeight={700}>
+            Diagnostic Evaluation Summary
+          </Typography>
+        </Box>
+        <CardContent sx={{ p: 4, textAlign: 'center' }}>
+          <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
+            Gaussian Naive Bayes model inference completed on uploaded patient cytology samples.
+          </Typography>
+
+          <Stack spacing={2} sx={{ mb: 4 }}>
+            {resultsList.map((r, idx) => {
+              const isMalignant = String(r).toLowerCase() === 'malignant';
+              return (
+                <Box
+                  key={idx}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    p: 2,
+                    borderRadius: 2,
+                    bgcolor: isMalignant ? '#fef2f2' : '#f0fdf4',
+                    border: '1px solid',
+                    borderColor: isMalignant ? '#fecaca' : '#bbf7d0',
+                  }}
+                >
+                  <Typography variant="subtitle1" fontWeight={600} color="text.primary">
+                    Patient Sample #{idx + 1}
+                  </Typography>
+                  <Chip
+                    icon={isMalignant ? <WarningAmberIcon /> : <CheckCircleOutlineIcon />}
+                    label={isMalignant ? 'MALIGNANT' : 'BENIGN'}
+                    color={isMalignant ? 'error' : 'success'}
+                    variant="filled"
+                    sx={{ fontWeight: 700, letterSpacing: 0.5 }}
+                  />
+                </Box>
+              );
+            })}
+          </Stack>
+
+          <Divider sx={{ my: 3 }} />
+
+          <Stack direction="row" spacing={2} justifyContent="center">
+            <Button
+              variant="outlined"
+              color="primary"
+              size="large"
+              onClick={() => navigate('/diagnose')}
+            >
+              New Diagnosis
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              onClick={() => navigate('/records')}
+            >
+              View Records
+            </Button>
+          </Stack>
+        </CardContent>
+      </Card>
+    </Container>
+  );
+}

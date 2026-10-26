@@ -48,7 +48,7 @@ function Layout() {
 
   </Typography>
 
-            {/* Welcome – made larger & bolder */}
+            {/* Welcome: made larger and bolder */}
             {isLoggedIn && (
               <Typography
                 variant="subtitle1"
@@ -63,7 +63,7 @@ function Layout() {
               </Typography>
             )}
 
-            {/* Nav links – all size large now */}
+            {/* Nav links: all size large now */}
             <Button
               component={Link}
               to="/diagnose"

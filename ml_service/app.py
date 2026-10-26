@@ -1,42 +1,68 @@
-# ml_service/app.py
-
+import os
+import tempfile
+import logging
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import tempfile
-import os
+from Test_NB_Model import predict_from_csv
 
-# Import your existing CSV-based tester
-from Test_NB_Model import predict_from_csv  # <-- you’ll need to add this function
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 CORS(app)
 
+
+@app.route('/health', methods=['GET'])
+def health():
+    """Health check endpoint for container probes and API gateway."""
+    return jsonify({
+        "status": "healthy",
+        "service": "Breava ML Microservice",
+        "model": "GaussianNB (Wisconsin Diagnostic)",
+        "features_required": 30
+    })
+
+
 @app.route('/predict_csv', methods=['POST'])
 def predict_csv():
     """
-    Expects form-data with a 'file' field (your CSV).
-    Returns JSON: { "results": ["benign","malignant",…] }
+    Accepts multipart form-data with a 'file' parameter (CSV).
+    Returns JSON: { "results": ["benign", "malignant", ...] }
     """
     if 'file' not in request.files:
-        return jsonify({'error': 'no file provided'}), 400
+        return jsonify({'error': 'No file provided in form-data (key: file).'}), 400
 
-    f = request.files['file']
-    # write to a temp file so your existing function can read it
+    uploaded_file = request.files['file']
+    if uploaded_file.filename == '':
+        return jsonify({'error': 'Empty filename uploaded.'}), 400
+
     with tempfile.NamedTemporaryFile(suffix='.csv', delete=False) as tmp:
-        f.save(tmp.name)
+        uploaded_file.save(tmp.name)
         tmp_path = tmp.name
 
     try:
-        # call into your Test_NB_Model logic
         results = predict_from_csv(tmp_path)
+        logger.info(f"Processed {len(results)} diagnostic predictions for {uploaded_file.filename}")
+        return jsonify({'results': results})
+    except ValueError as ve:
+        logger.warning(f"Validation error: {ve}")
+        return jsonify({'error': str(ve)}), 400
     except Exception as e:
-        return jsonify({'error': f'Model error: {e}'}), 500
+        logger.exception(f"Inference error: {e}")
+        return jsonify({'error': f'Model inference failure: {str(e)}'}), 500
     finally:
-        os.remove(tmp_path)
-
-    return jsonify({'results': results})
+        if os.path.exists(tmp_path):
+            try:
+                os.remove(tmp_path)
+            except OSError as err:
+                logger.error(f"Failed to delete temporary file {tmp_path}: {err}")
 
 
 if __name__ == '__main__':
-    # debug=True gives auto-reload; host 0.0.0.0 makes it accessible across network if needed.
-    app.run(host='0.0.0.0', port=8008, debug=True)
+    port = int(os.environ.get('PORT', 8008))
+    debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    logger.info(f"Starting Breava ML Service on port {port}")
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)

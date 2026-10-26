@@ -27,7 +27,7 @@ export default function About() {
           We utilize powerful algorithm:
           <br />
           <strong>Naive Bayes</strong>, which has been trained to extract features from Fine needle Aspiration(FNA) cytology data.
-          Breava caters effectively to approximately 70-80% (in developing countiers) of early breast cancer diagnostic cases, where FNA procedures are typically used to assess tumor malignancy.
+          Breava caters effectively to approximately 70-80% (in developing countries) of early breast cancer diagnostic cases, where FNA procedures are typically used to assess tumor malignancy.
 
         </Typography>
       </Box>

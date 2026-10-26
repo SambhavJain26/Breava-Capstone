@@ -1,4 +1,3 @@
-// src/pages/Diagnose.js
 import React, { useState, useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -23,7 +22,7 @@ export default function Diagnose() {
   const navigate                        = useNavigate();
   const fileInputRef                    = useRef();
 
-  // only accept CSV files
+  // Only accept CSV files
   const isCsv = file => file.name.toLowerCase().endsWith('.csv');
 
   const handleFileChange = e => {
@@ -90,7 +89,7 @@ export default function Diagnose() {
     <Container maxWidth="sm" sx={{ py: 6 }}>
       <Card elevation={3}>
         <CardContent>
-          <Typography variant="h4" align="center" gutterBottom>
+          <Typography variant="h4" align="center" gutterBottom color="primary">
             Breast Cancer Diagnosis
           </Typography>
 
@@ -101,13 +100,16 @@ export default function Diagnose() {
           )}
 
           <Typography variant="h6" gutterBottom>
-            Upload CSV File
+            Upload Patient Diagnostic CSV
           </Typography>
           <Typography variant="body2" color="textSecondary" gutterBottom>
-            Only <strong>.csv</strong> format is supported
+            Only <strong>.csv</strong> format is supported (30 diagnostic features). Need test data?{' '}
+            <a href="/sample_patient_data.csv" download style={{ color: '#1976d2', fontWeight: 600, textDecoration: 'none' }}>
+              Download Sample Patient CSV
+            </a>
           </Typography>
 
-          {/* Drag & Drop */}
+          {/* Drag and Drop Box */}
           <Box
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -115,7 +117,7 @@ export default function Diagnose() {
             onClick={() => fileInputRef.current.click()}
             sx={{
               border: '2px dashed',
-              borderColor: dragging ? 'primary.main' : 'grey.500',
+              borderColor: dragging ? 'primary.main' : 'grey.400',
               borderRadius: 2,
               height: 160,
               display: 'flex',
@@ -123,19 +125,24 @@ export default function Diagnose() {
               justifyContent: 'center',
               cursor: 'pointer',
               mb: 3,
-              bgcolor: dragging ? 'action.hover' : 'transparent',
+              mt: 2,
+              bgcolor: dragging ? 'action.hover' : '#fafafa',
               transition: 'background-color 0.2s, border-color 0.2s',
             }}
           >
             <Stack alignItems="center" spacing={1}>
-              <UploadFileIcon fontSize="large" color="action" />
+              <UploadFileIcon fontSize="large" color="primary" />
               {selectedFile ? (
-                <Typography variant="body1">{selectedFile.name}</Typography>
+                <Typography variant="body1" fontWeight={600} color="primary.main">
+                  {selectedFile.name}
+                </Typography>
               ) : (
                 <>
-                  <Typography variant="body1">Drag & drop a CSV here</Typography>
+                  <Typography variant="body1" fontWeight={500}>
+                    Drag & drop patient CSV here, or click to browse
+                  </Typography>
                   <Typography variant="caption" color="textSecondary">
-                    (.csv only)
+                    30-feature Wisconsin Cytology Format (.csv)
                   </Typography>
                 </>
               )}
@@ -149,23 +156,25 @@ export default function Diagnose() {
             />
           </Box>
 
-          {/* Actions */}
+          {/* Action Buttons */}
           <Stack spacing={2} alignItems="center">
             <Button
               variant="outlined"
               color="primary"
               size="large"
+              fullWidth
               onClick={() => fileInputRef.current.click()}
             >
-              Browse CSV
+              Browse Files
             </Button>
             <Button
               variant="contained"
               color="primary"
               size="large"
+              fullWidth
               onClick={handleSubmit}
             >
-              Submit for Analysis
+              Submit for Clinical Analysis
             </Button>
           </Stack>
         </CardContent>

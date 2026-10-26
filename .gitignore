@@ -1,1 +1,43 @@
-venv
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+client/.env
+server/.env
+ml_service/.env
+
+# Python Virtual Environments & Caches
+.venv/
+venv/
+env/
+__pycache__/
+*/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Uploads & Temporary Files
+server/uploads/*
+!server/uploads/.gitkeep
+tmp/
+temp/
+*.log
+
+# Production Builds
+client/build/
+dist/
+
+# OS and Editor Artifacts
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo

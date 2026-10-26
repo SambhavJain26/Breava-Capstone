@@ -1,8 +1,6 @@
-// src/pages/Records.js
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-
 import {
   Container,
   Card,
@@ -13,8 +11,11 @@ import {
   CircularProgress,
   List,
   ListItem,
-  ListItemText
+  ListItemText,
+  Chip
 } from '@mui/material';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
 export default function Records() {
   const { user, isLoggedIn } = useContext(AuthContext);
@@ -42,7 +43,6 @@ export default function Records() {
     fetchRecords();
   }, [isLoggedIn]);
 
-  // Loading state
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
@@ -51,17 +51,20 @@ export default function Records() {
     );
   }
 
+  const userName = user?.name ? `${user.name}'s ` : '';
+
   return (
     <Container maxWidth="md" sx={{ py: 6 }}>
-      <Card elevation={3}>
-        <CardContent>
+      <Card elevation={3} sx={{ borderRadius: 2 }}>
+        <CardContent sx={{ p: 4 }}>
           <Typography
             variant="h4"
             align="center"
             gutterBottom
             color="primary"
+            fontWeight={700}
           >
-            {user.name}’s Diagnosis Records
+            {userName}Clinical Diagnostic Records
           </Typography>
 
           {error && (
@@ -71,18 +74,37 @@ export default function Records() {
           )}
 
           {records.length === 0 ? (
-            <Typography variant="body1" align="center">
-              No records found.
-            </Typography>
+            <Box sx={{ textAlign: 'center', py: 4 }}>
+              <Typography variant="body1" color="textSecondary">
+                No diagnostic records found on file.
+              </Typography>
+            </Box>
           ) : (
-            <List>
+            <List sx={{ mt: 2 }}>
               {records.map((record) => {
                 const date = new Date(record.createdAt).toLocaleString();
+                const isMalignant = String(record.result).toLowerCase() === 'malignant';
                 return (
-                  <ListItem key={record._id} divider>
+                  <ListItem
+                    key={record._id}
+                    divider
+                    secondaryAction={
+                      <Chip
+                        icon={isMalignant ? <WarningAmberIcon /> : <CheckCircleOutlineIcon />}
+                        label={isMalignant ? 'MALIGNANT' : 'BENIGN'}
+                        color={isMalignant ? 'error' : 'success'}
+                        size="small"
+                        sx={{ fontWeight: 700 }}
+                      />
+                    }
+                  >
                     <ListItemText
-                      primary={record.filename}
-                      secondary={`${record.result} — ${date}`}
+                      primary={
+                        <Typography variant="subtitle1" fontWeight={600}>
+                          {record.filename}
+                        </Typography>
+                      }
+                      secondary={date}
                     />
                   </ListItem>
                 );

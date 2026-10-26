@@ -1,34 +1,61 @@
+import os
+import sys
+from typing import List
 import pandas as pd
 import joblib
 
-# Step 1: Load the saved model and scaler
-model = joblib.load('breast_cancer_nb_model.pkl')
-scaler = joblib.load('scaler.pkl')
+# Resolve paths relative to script location
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, 'breast_cancer_nb_model.pkl')
+SCALER_PATH = os.path.join(BASE_DIR, 'scaler.pkl')
 
-# Step 2: Upload the CSV file
-file_path = input("Please enter the path to the patient's CSV file: ")
+model = joblib.load(MODEL_PATH)
+scaler = joblib.load(SCALER_PATH)
 
-try:
-    new_patient_df = pd.read_csv(file_path)
-    print("\n✅ Patient data uploaded successfully!")
-    
-    # Step 3: Preprocessing
-    # Remove 'id' and 'diagnosis' columns if they exist
-    new_patient_df = new_patient_df.drop(columns=['id', 'diagnosis'], errors='ignore')
-    
-    # Check if the file has exactly 30 features
-    if new_patient_df.shape[1] != 30:
-        raise ValueError(f"The uploaded file must have exactly 30 features, but it has {new_patient_df.shape[1]}.")
+EXPECTED_FEATURE_COUNT = 30
 
-    # Step 4: Scale the input
-    new_patient_scaled = scaler.transform(new_patient_df)
-    
-    # Step 5: Make prediction
-    new_prediction = model.predict(new_patient_scaled)
 
-    # Step 6: Show result
-    for idx, pred in enumerate(new_prediction):
-        print(f"Patient {idx+1} Prediction:", "Malignant" if pred == 1 else "Benign")
-        
-except Exception as e:
-    print("❌ Error:", e)
+def predict_from_csv(path_to_csv: str) -> List[str]:
+    """
+    Reads CSV at path_to_csv, drops id/diagnosis columns,
+    scales features using fitted StandardScaler, and returns ['benign', 'malignant', ...]
+    """
+    df = pd.read_csv(path_to_csv)
+
+    # Drop non-feature metadata columns if present
+    df = df.drop(columns=['id', 'diagnosis', 'Unnamed: 32'], errors='ignore')
+
+    # Enforce exactly 30 features
+    if df.shape[1] != EXPECTED_FEATURE_COUNT:
+        raise ValueError(
+            f"CSV file must have exactly {EXPECTED_FEATURE_COUNT} diagnostic features, found {df.shape[1]}."
+        )
+
+    # Reorder columns to match scaler if feature names match
+    if hasattr(scaler, "feature_names_in_"):
+        expected_cols = list(scaler.feature_names_in_)
+        if all(c in df.columns for c in expected_cols):
+            df = df[expected_cols]
+
+    # Scale and predict
+    X_scaled = scaler.transform(df)
+    preds = model.predict(X_scaled)
+
+    # Map target integers to clinical classifications
+    label_map = {0: 'benign', 1: 'malignant'}
+    return [label_map[int(p)] for p in preds]
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: python Test_NB_Model.py path/to/file.csv")
+        sys.exit(1)
+
+    csv_path = sys.argv[1]
+    try:
+        results = predict_from_csv(csv_path)
+        for idx, r in enumerate(results, 1):
+            print(f"Patient {idx}: {r}")
+    except Exception as e:
+        print(f"ERROR: {e}")
+        sys.exit(2)

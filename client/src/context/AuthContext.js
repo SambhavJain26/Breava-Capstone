@@ -4,7 +4,7 @@ import axios from 'axios';
 
 export const AuthContext = createContext();
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 // Set the default base URL for all axios requests
 axios.defaults.baseURL = API_BASE;
 
