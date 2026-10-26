@@ -72,7 +72,7 @@ flowchart LR
 
     subgraph APICluster ["Gateway Layer"]
         ExpressSvc["Express Gateway (Port 5000)"]
-        AuthHandler["JWT & Bcrypt Security"]
+        AuthHandler["JWT and Bcrypt Security"]
         UploadHandler["Multer Memory Buffer"]
         DBHandler{"Persistence Resolver"}
         MongoDB[("MongoDB Database")]
@@ -85,18 +85,18 @@ flowchart LR
         GNBModel["GaussianNB Classifier"]
     end
 
-    ReactApp -->|REST / JWT| ExpressSvc
+    ReactApp -->|"REST and JWT"| ExpressSvc
     ExpressSvc --> AuthHandler
     ExpressSvc --> UploadHandler
-    UploadHandler -->|Multipart Stream| FlaskSvc
+    UploadHandler -->|"Multipart Stream"| FlaskSvc
     FlaskSvc --> ScalerUnit
     ScalerUnit --> GNBModel
-    GNBModel -->|Predictions Array| FlaskSvc
-    FlaskSvc -->|JSON Payload| ExpressSvc
+    GNBModel -->|"Predictions Array"| FlaskSvc
+    FlaskSvc -->|"JSON Payload"| ExpressSvc
     ExpressSvc --> DBHandler
-    DBHandler -->|Connected| MongoDB
-    DBHandler -->|Disconnected| InMemoryDB
-    DBHandler -->|Response| ReactApp
+    DBHandler -->|"Connected"| MongoDB
+    DBHandler -->|"Disconnected"| InMemoryDB
+    DBHandler -->|"Response"| ReactApp
 ```
 
 ### Component Roles

@@ -34,13 +34,13 @@ Breava transforms digitized Fine Needle Aspirate (FNA) cytological biopsies into
 flowchart TD
     subgraph Client ["Client Presentation Tier (React 18 + MUI)"]
         UI["Clinical Web Application (Port 3005)"]
-        Upload["CSV Ingestion & Validation Zone"]
-        Dash["Audit & Diagnostic History Dashboard"]
+        Upload["CSV Ingestion and Validation Zone"]
+        Dash["Audit and Diagnostic History Dashboard"]
     end
 
     subgraph Gateway ["API Gateway Tier (Express + Node.js)"]
         API["Express Server (Port 5000)"]
-        AuthMiddleware["JWT Verification & RBAC"]
+        AuthMiddleware["JWT Verification and RBAC"]
         Multer["Multipart Stream Parser (Multer)"]
         StorageEngine{"Persistence Router"}
         MongoStore[("MongoDB Database")]
@@ -55,24 +55,24 @@ flowchart TD
         Inference["Bayesian Probability Engine"]
     end
 
-    UI -->|1. Authenticate / Login| API
-    Upload -->|2. POST /api/diagnose (CSV Stream)| API
+    UI -->|"1. Authenticate and Login"| API
+    Upload -->|"2. Upload Diagnostic CSV"| API
     API --> AuthMiddleware
     AuthMiddleware --> Multer
-    Multer -->|3. POST /predict_csv (Multipart Data)| FlaskApp
+    Multer -->|"3. Forward Multipart Stream"| FlaskApp
     
     FlaskApp --> Validator
     Validator --> Scaler
     Scaler --> Model
     Model --> Inference
-    Inference -->|4. Return Inferred Classes: Benign / Malignant| FlaskApp
-    FlaskApp -->|5. JSON Predictions| API
+    Inference -->|"4. Classify Benign or Malignant"| FlaskApp
+    FlaskApp -->|"5. Return JSON Predictions"| API
 
     API --> StorageEngine
-    StorageEngine -->|Online Mode| MongoStore
-    StorageEngine -->|Offline Mode| MemoryStore
-    StorageEngine -->|6. Unified Clinical Payload| UI
-    Dash -->|7. GET /api/records| API
+    StorageEngine -->|"Online Mode"| MongoStore
+    StorageEngine -->|"Offline Mode"| MemoryStore
+    StorageEngine -->|"6. Return Clinical Records"| UI
+    Dash -->|"7. Fetch Diagnostic History"| API
 ```
 
 ---
