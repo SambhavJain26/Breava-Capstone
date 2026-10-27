@@ -1,7 +1,8 @@
-# Case Study: Breava - Clinical Breast Cancer Diagnostic Intelligence Platform
+# Case Study: Breast Cancer Diagnostic & Clinical Decision Platform
 
 ## Project Hero
 
+- **Project Title**: Breast Cancer Diagnostic & Clinical Decision Platform
 - **Role**: Lead Full-Stack & Machine Learning Systems Architect
 - **Project Type**: Clinical Diagnostic Microservices Platform & Decision Support System
 - **Timeline**: 2024 - 2025
